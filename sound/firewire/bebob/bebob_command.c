@@ -30,16 +30,19 @@ int avc_audio_set_selector(struct fw_unit *unit, unsigned int subunit_id,
 	err = fcp_avc_transaction(unit, buf, 12, buf, 12,
 				  BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) |
 				  BIT(6) | BIT(7) | BIT(8));
-	if (err < 0)
+	switch (err < 0){
 		;
-	else if (err < 9)
+	case (err < 9):
 		err = -EIO;
-	else if (buf[0] == 0x08) /* NOT IMPLEMENTED */
+		break;
+	case (buf[0] == 0x08): /* NOT IMPLEMENTED */
 		err = -ENOSYS;
-	else if (buf[0] == 0x0a) /* REJECTED */
+		break;
+	case (buf[0] == 0x0a): /* REJECTED */
 		err = -EINVAL;
-	else
-		err = 0;
+		break;
+	default:
+		err = 0;}
 
 	kfree(buf);
 	return err;
